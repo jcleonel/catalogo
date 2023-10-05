@@ -1,5 +1,6 @@
 package com.jc.catalogo.entities;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,10 +13,14 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(of = "id")
+@Entity
+@Table(name = "tb_category")
 public class Category implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
 
