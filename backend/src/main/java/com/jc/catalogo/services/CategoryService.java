@@ -1,9 +1,11 @@
 package com.jc.catalogo.services;
 
+import com.jc.catalogo.dto.CategoryDTO;
 import com.jc.catalogo.entities.Category;
 import com.jc.catalogo.repositories.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -13,8 +15,10 @@ public class CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public List<Category> findAll() {
-        return categoryRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<CategoryDTO> findAll() {
+        List<Category> list = categoryRepository.findAll();
+        return list.stream().map(x -> new CategoryDTO(x)).toList();
     }
 
 }
