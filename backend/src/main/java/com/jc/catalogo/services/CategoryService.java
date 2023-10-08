@@ -3,8 +3,11 @@ package com.jc.catalogo.services;
 import com.jc.catalogo.dto.CategoryDTO;
 import com.jc.catalogo.entities.Category;
 import com.jc.catalogo.repositories.CategoryRepository;
+import com.jc.catalogo.services.exceptions.DatabaseException;
 import com.jc.catalogo.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,4 +56,19 @@ public class CategoryService {
         }
     }
 
+    public void delete(Long id) {
+        Optional<Category> categoryOptional = categoryRepository.findById(id);
+        if (categoryOptional.isEmpty()) {
+            throw new ResourceNotFoundException("Id not found: " + id);
+        }
+
+        try {
+            categoryRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException | EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Id not found: " + id);
+        } catch (DataIntegrityViolationException e) {
+           throw new DatabaseException("Entegrity Violation");
+        }
+
+    }
 }
