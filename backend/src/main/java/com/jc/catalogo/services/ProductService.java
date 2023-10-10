@@ -1,7 +1,9 @@
 package com.jc.catalogo.services;
 
 import com.jc.catalogo.dto.ProductDTO;
+import com.jc.catalogo.entities.Category;
 import com.jc.catalogo.entities.Product;
+import com.jc.catalogo.repositories.CategoryRepository;
 import com.jc.catalogo.repositories.ProductRepository;
 import com.jc.catalogo.services.exceptions.DatabaseException;
 import com.jc.catalogo.services.exceptions.ResourceNotFoundException;
@@ -19,9 +21,11 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Transactional(readOnly = true)
@@ -40,7 +44,7 @@ public class ProductService {
     @Transactional
     public ProductDTO insert(ProductDTO productDTO) {
         Product product = new Product();
-        //product.setName(productDTO.getName());
+        copyDtoToEntity(productDTO, product);
         product = productRepository.save(product);
         return new ProductDTO(product);
     }
@@ -49,7 +53,7 @@ public class ProductService {
     public ProductDTO update(Long id, ProductDTO productDTO) {
         try {
             Product product = productRepository.getReferenceById(id);
-            //product.setName(productDTO.getName());
+            copyDtoToEntity(productDTO, product);
             product = productRepository.save(product);
             return new ProductDTO(product);
         } catch (EntityNotFoundException e) {
@@ -72,4 +76,19 @@ public class ProductService {
         }
 
     }
+
+    private void copyDtoToEntity(ProductDTO productDTO, Product product) {
+        product.setName(productDTO.getName());
+        product.setDescription(productDTO.getDescription());
+        product.setPrice(productDTO.getPrice());
+        product.setImgUrl(productDTO.getImgUrl());
+        product.setDate(productDTO.getDate());
+
+        product.getCategories().clear();
+        productDTO.getCategories().forEach(categoryDTO -> {
+            Category category = categoryRepository.getReferenceById(categoryDTO.getId());
+            product.getCategories().add(category);
+        });
+    }
+
 }
