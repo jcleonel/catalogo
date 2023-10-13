@@ -9,9 +9,7 @@ import com.jc.catalogo.services.exceptions.DatabaseException;
 import com.jc.catalogo.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,19 +61,15 @@ public class ProductService {
     }
 
     public void delete(Long id) {
-        Optional<Product> productOptional = productRepository.findById(id);
-        if (productOptional.isEmpty()) {
+        if (productRepository.existsById(id)) {
+            try {
+                productRepository.deleteById(id);
+            } catch (DataIntegrityViolationException e) {
+                throw new DatabaseException("Entegrity Violation");
+            }
+        } else {
             throw new ResourceNotFoundException("Id not found: " + id);
         }
-
-        try {
-            productRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException | EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Id not found: " + id);
-        } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Entegrity Violation");
-        }
-
     }
 
     private void copyDtoToEntity(ProductDTO productDTO, Product product) {

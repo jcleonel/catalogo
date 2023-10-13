@@ -23,12 +23,17 @@ public class Category implements Serializable {
     private String name;
 
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
-    @Getter
+    @Setter(AccessLevel.NONE)
     private Instant createdAt;
 
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
-    @Getter
+    @Setter(AccessLevel.NONE)
     private Instant updatedAt;
+
+    public Category(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
     @PrePersist
     public void prePersist() {

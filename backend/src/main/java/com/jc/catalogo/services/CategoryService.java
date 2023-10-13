@@ -7,7 +7,6 @@ import com.jc.catalogo.services.exceptions.DatabaseException;
 import com.jc.catalogo.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -58,18 +57,14 @@ public class CategoryService {
     }
 
     public void delete(Long id) {
-        Optional<Category> categoryOptional = categoryRepository.findById(id);
-        if (categoryOptional.isEmpty()) {
+        if (categoryRepository.existsById(id)) {
+            try {
+                categoryRepository.deleteById(id);
+            } catch (DataIntegrityViolationException e) {
+                throw new DatabaseException("Entegrity Violation");
+            }
+        } else {
             throw new ResourceNotFoundException("Id not found: " + id);
         }
-
-        try {
-            categoryRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException | EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Id not found: " + id);
-        } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Entegrity Violation");
-        }
-
     }
 }
