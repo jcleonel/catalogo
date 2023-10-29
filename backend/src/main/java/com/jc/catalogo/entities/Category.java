@@ -6,6 +6,8 @@ import lombok.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,9 +15,7 @@ import java.time.Instant;
 @EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "tb_category")
-public class Category implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +29,10 @@ public class Category implements Serializable {
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     @Setter(AccessLevel.NONE)
     private Instant updatedAt;
+
+    @Setter(AccessLevel.NONE)
+    @ManyToMany(mappedBy = "categories")
+    private Set<Product> products = new HashSet<>();
 
     public Category(long id, String name) {
         this.id = id;
